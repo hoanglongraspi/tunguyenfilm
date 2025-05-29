@@ -274,8 +274,8 @@ const Index = () => {
                   }}
                   ref={videoRef}
                 >
-                  <source src="/TVC%20Tu%20Nguyen%20Film%20.mp4" type="video/mp4" />
-                  <source src="/TVC%20Tu%20Nguyen%20Film%20.webm" type="video/webm" />
+                  <source src="/TVCTuNguyenFilm.mp4" type="video/mp4" />
+                  <source src="/TVCTuNguyenFilm.webm" type="video/webm" />
                   Your browser does not support the video tag.
                 </video>
                 
