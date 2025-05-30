@@ -3,12 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { usePageContent, getContentWithFallback } from "@/hooks/usePageContent";
 
 const Index = () => {
   const navigate = useNavigate();
   const [language, setLanguage] = useState('vi');
   const [currentSlide, setCurrentSlide] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Fetch CMS content
+  const { data: cmsContent } = usePageContent("home");
 
   // Background images for slideshow
   const backgroundImages = [
@@ -38,7 +42,12 @@ const Index = () => {
     }
   };
 
-  // Language content object
+  // Helper function to get CMS content with fallback
+  const getCMSContent = (section: string, fallback: string) => {
+    return getContentWithFallback(cmsContent || [], section, fallback);
+  };
+
+  // Language content object with CMS integration
   const content = {
     vi: {
       nav: {
@@ -48,15 +57,16 @@ const Index = () => {
       },
       hero: {
         badge: 'Photographer / Videographer',
-        title: 'Tú Nguyễn Film',
-        description: 'Chuyên quay phim, chụp ảnh sự kiện, cưới hỏi và quảng cáo với phong cách chuyên nghiệp, cảm xúc và sáng tạo.',
+        title: getCMSContent('hero-title', 'Tú Nguyễn Film'),
+        description: getCMSContent('hero-subtitle', 'Chuyên quay phim, chụp ảnh sự kiện, cưới hỏi và quảng cáo với phong cách chuyên nghiệp, cảm xúc và sáng tạo.'),
         viewPortfolio: 'Xem Portfolio',
+        aboutUs: 'Về chúng tôi',
         contact: 'Liên hệ',
         demoReel: 'Demo Reel'
       },
       portfolio: {
-        title: 'Portfolio',
-        subtitle: 'Khám phá những dự án đã thực hiện với chất lượng và sự sáng tạo',
+        title: getCMSContent('portfolio-title', 'Portfolio'),
+        subtitle: getCMSContent('portfolio-subtitle', 'Khám phá những dự án đã thực hiện với chất lượng và sự sáng tạo'),
         personal: {
           title: 'Personal Project',
           description: 'Những dự án cá nhân, nghệ thuật và sáng tạo',
@@ -74,8 +84,8 @@ const Index = () => {
         }
       },
       contact: {
-        title: 'Liên hệ hợp tác',
-        subtitle: 'Sẵn sàng biến ý tưởng của bạn thành hiện thực'
+        title: getCMSContent('contact-title', 'Liên hệ hợp tác'),
+        subtitle: getCMSContent('contact-subtitle', 'Sẵn sàng biến ý tưởng của bạn thành hiện thực')
       },
       footer: {
         title: 'TN Films',
@@ -97,15 +107,16 @@ const Index = () => {
       },
       hero: {
         badge: 'Photographer / Videographer',
-        title: 'Tu Nguyen Film',
-        description: 'Specializing in professional, emotional and creative videography and photography for events, weddings and advertising.',
+        title: getCMSContent('hero-title', 'Tu Nguyen Film'),
+        description: getCMSContent('hero-subtitle', 'Specializing in professional, emotional and creative videography and photography for events, weddings and advertising.'),
         viewPortfolio: 'View Portfolio',
+        aboutUs: 'About Us',
         contact: 'Contact',
         demoReel: 'Demo Reel'
       },
       portfolio: {
-        title: 'Portfolio',
-        subtitle: 'Explore projects completed with quality and creativity',
+        title: getCMSContent('portfolio-title', 'Portfolio'),
+        subtitle: getCMSContent('portfolio-subtitle', 'Explore projects completed with quality and creativity'),
         personal: {
           title: 'Personal Project',
           description: 'Personal, artistic and creative projects',
@@ -123,8 +134,8 @@ const Index = () => {
         }
       },
       contact: {
-        title: 'Contact & Collaboration',
-        subtitle: 'Ready to turn your ideas into reality'
+        title: getCMSContent('contact-title', 'Contact & Collaboration'),
+        subtitle: getCMSContent('contact-subtitle', 'Ready to turn your ideas into reality')
       },
       footer: {
         title: 'TN Films',
@@ -245,14 +256,34 @@ const Index = () => {
                 {t.hero.description}
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button className="bg-white hover:bg-gray-100 text-gray-900 px-8 py-3 rounded-lg font-medium transition-all duration-300 hover:shadow-lg">
-                {t.hero.viewPortfolio}
-                <ChevronRight className="w-4 h-4 ml-2" />
-              </Button>
-              <Button className="bg-blue-900/80 backdrop-blur-sm hover:bg-blue-800 text-white border-blue-800 px-8 py-3 rounded-lg font-medium transition-all duration-300">
-                {t.hero.contact}
-              </Button>
+            <div className="space-y-8 mt-8">
+              {/* Primary CTA */}
+              <div className="relative">
+                <Button className="w-full sm:w-auto bg-gradient-to-r from-white via-gray-50 to-white hover:from-gray-50 hover:via-white hover:to-gray-50 text-gray-900 px-12 py-4 rounded-2xl font-bold text-lg shadow-2xl hover:shadow-white/30 transition-all duration-500 hover:scale-105 transform group border border-white/20">
+                  <span className="relative z-10">{t.hero.viewPortfolio}</span>
+                  <ChevronRight className="w-6 h-6 ml-3 group-hover:translate-x-2 transition-all duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </Button>
+              </div>
+
+              {/* Secondary Actions */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center sm:justify-start">
+                <Button variant="ghost" className="group relative overflow-hidden bg-white/10 hover:bg-white/15 backdrop-blur-md text-white border border-white/20 hover:border-white/30 px-8 py-3 rounded-xl font-medium transition-all duration-300 hover:shadow-lg hover:shadow-white/10">
+                  <span className="relative z-10 flex items-center">
+                    {t.hero.aboutUs}
+                    <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                </Button>
+
+                <Button variant="ghost" className="group relative overflow-hidden bg-blue-500/20 hover:bg-blue-500/30 backdrop-blur-md text-white border border-blue-400/30 hover:border-blue-400/50 px-8 py-3 rounded-xl font-medium transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20">
+                  <span className="relative z-10 flex items-center">
+                    {t.hero.contact}
+                    <Mail className="w-4 h-4 ml-2 group-hover:scale-110 transition-transform duration-300" />
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                </Button>
+              </div>
             </div>
           </div>
           
@@ -304,6 +335,37 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* About Section (CMS Content Demo) */}
+      {/* <section className="py-20 px-6 bg-gray-800 relative">
+        <div className="container mx-auto text-center">
+          <div className="max-w-4xl mx-auto space-y-8">
+            <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight">
+              {getCMSContent('about-title', language === 'vi' ? 'Về Chúng Tôi' : 'About Us')}
+            </h2>
+            <p className="text-xl text-gray-300 leading-relaxed">
+              {getCMSContent('about-text', language === 'vi' 
+                ? 'Chúng tôi là đội ngũ chuyên nghiệp trong lĩnh vực quay phim và chụp ảnh, luôn nỗ lực mang đến những khoảnh khắc đẹp nhất cho bạn.'
+                : 'We are a professional team in videography and photography, always striving to bring you the most beautiful moments.'
+              )}
+            </p>
+            {getCMSContent('services-title', '') && (
+              <div className="pt-8">
+                <h3 className="text-2xl font-bold text-white mb-4">
+                  {getCMSContent('services-title', language === 'vi' ? 'Dịch Vụ' : 'Services')}
+                </h3>
+                <p className="text-gray-300">
+                  {getCMSContent('services-text', language === 'vi'
+                    ? 'Chúng tôi cung cấp dịch vụ quay phim, chụp ảnh chuyên nghiệp cho mọi loại sự kiện.'
+                    : 'We provide professional videography and photography services for all types of events.'
+                  )}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section> */}
+
       {/* Portfolio Section */}
       <section className="py-32 px-6 bg-gray-900 relative overflow-hidden">
         {/* Background Image */}
